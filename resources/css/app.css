@@ -8,4 +8,13 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Color tokens (Skillnest theme) */
+    --color-primary: #0B63D6; /* deep blue for CTAs */
+    --color-primary-dark: #0E2B59; /* darker navy */
+    --color-accent: #FFC33A; /* yellow accent */
+    --color-bg: #F3F8FF; /* soft hero background */
+    --color-surface: #FFFFFF; /* card / surface */
+    --color-muted: #6F7685; /* muted text */
+    --color-footer: #071430; /* footer background */
 }
