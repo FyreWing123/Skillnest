@@ -20,17 +20,17 @@
             </style>
         @endif
     </head>
-    <body class="bg-[#F8FAFC] text-[#1b1b18] min-h-screen">
+   <body class="bg-[#F8FAFC] text-[#1b1b18] min-h-screen flex flex-col">
         @include('partials.header')
 
-        <main class="mx-auto w-full max-w-screen-xl px-6 py-16 md:px-8 md:py-24">
+        <main class="flex-1 mx-auto w-full max-w-screen-xl px-6 py-16 md:px-8 md:py-24">
             <div class="relative">
                 <div class="absolute inset-0 -z-10 bg-gradient-to-b from-[#EFF6FF] via-[#F0F9FF] to-transparent rounded-3xl blur-3xl opacity-60"></div>
             @include('partials.hero')
             @include('partials.stats')
             @include('partials.services')
             @include('partials.cta-banner')
-            @include('partials.footer')
         </main>
+         @include('partials.footer')
     </body>
 </html>

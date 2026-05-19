@@ -4,10 +4,15 @@
         $loginUrl = Route::has('login') ? route('login') : url('/login');
     @endphp
     <div class="mx-auto flex w-full max-w-screen-xl items-center justify-between gap-6 px-6 py-4">
-        <a href="/" class="flex items-center gap-3">
-            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)] text-base font-bold text-white">SN</div>
-            <span class="text-lg font-semibold text-slate-900">SkillNest</span>
-        </a>
+       <a href="/" class="flex items-center gap-3">
+    <img 
+        src="{{ asset('images/skillnestlogo.png') }}" 
+        alt="SkillNest Logo"
+        class="h-10 w-10 object-contain">
+    <span class="text-lg font-semibold text-slate-900">
+        SkillNest
+    </span>
+</a>
 
         <div class="flex flex-1 items-center justify-center gap-6">
             <div class="hidden md:flex items-center gap-3 rounded-full border border-slate-300 bg-white px-4 py-2 shadow-sm">
@@ -20,11 +25,37 @@
             </div>
 
             <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold">
-                <a href="#" class="text-[var(--color-primary-dark)] border-b-2 border-[var(--color-accent)] pb-2">Home</a>
-                <a href="#" class="text-slate-700">About us</a>
-                <a href="#" class="text-slate-700">Services</a>
-                <a href="#" class="text-slate-700">Contact us</a>
-                <a href="#" class="text-slate-700">FAQ's</a>
+
+                <a 
+                    href="{{ route('home') }}"
+                    class="{{ request()->routeIs('home') 
+                        ? 'text-[var(--color-primary-dark)] border-b-2 border-[var(--color-accent)] pb-2' 
+                        : 'text-slate-700' }}"
+                >
+                    Home
+                </a>
+
+                <a href="#" class="text-slate-700">
+                    About us
+                </a>
+
+                <a href="#" class="text-slate-700">
+                    Services
+                </a>
+
+                <a 
+                    href="{{ route('contact') }}"
+                    class="{{ request()->routeIs('contact') 
+                        ? 'text-[var(--color-primary-dark)] border-b-2 border-[var(--color-accent)] pb-2' 
+                        : 'text-slate-700' }}"
+                >
+                    Contact us
+                </a>
+
+                <a href="#" class="text-slate-700">
+                    FAQ's
+                </a>
+
             </nav>
         </div>
 

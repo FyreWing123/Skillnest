@@ -31,12 +31,20 @@
                 <div class="relative rounded-[1.75rem] bg-white p-6 shadow-lg max-w-[400px] w-full">
                     <div class="flex items-center justify-between gap-4 mb-5">
                         <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white font-bold text-sm">SN</div>
-                            <div>
-                                <div class="text-sm font-semibold text-[var(--color-primary-dark)]">SkillNest Dashboard</div>
-                                <div class="text-xs text-[var(--color-muted)]">Rekomendasi layanan sesuai kebutuhan UMKM</div>
+                        <img 
+                            src="{{ asset('images/skillnestlogo.png') }}" 
+                            alt="SkillNest Logo"
+                            class="h-8 w-8 object-contain">
+                        <div>
+                            <div class="text-sm font-semibold text-[var(--color-primary-dark)]">
+                                SkillNest Dashboard
+                            </div>
+
+                            <div class="text-xs text-[var(--color-muted)]">
+                                Rekomendasi layanan sesuai kebutuhan UMKM
                             </div>
                         </div>
+                    </div>
                         <button class="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold">GO!</button>
                     </div>
 
