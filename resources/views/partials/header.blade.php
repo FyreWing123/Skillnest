@@ -67,11 +67,17 @@
                 Home
             </a>
 
-            <a href="#" class="text-slate-700 hover:text-slate-900">
+           <a 
+                href="{{ route('aboutus') }}"
+                class="{{ request()->routeIs('aboutus') 
+                    ? 'text-[var(--color-primary-dark)] border-b-2 border-[var(--color-accent)] pb-2' 
+                    : 'text-slate-700' }}"
+            >
                 About us
             </a>
 
-            <a href="#" class="text-slate-700 hover:text-slate-900">
+            <a href="{{ route('services') }}"
+            class="{{ request()->routeIs('services') ? 'text-[var(--color-primary-dark)] border-b-2 border-[var(--color-accent)] pb-2' : 'text-slate-700' }}">
                 Services
             </a>
 
