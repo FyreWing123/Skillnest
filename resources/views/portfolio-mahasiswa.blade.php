@@ -51,7 +51,7 @@
             Layanan Saya
            </a>
 
-            <a href="#"
+            <a href="{{ route('chat') }}"
                 class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100">
                 Pesan
             </a>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -9,7 +10,7 @@ class ContactController extends Controller
 {
     public function index()
     {
-        return view('contact');
+        return view('contactus');
     }
 
     public function send(Request $request)
@@ -27,6 +28,14 @@ class ContactController extends Controller
             'message.required'  => 'Pesan wajib diisi.',
             'message.min'       => 'Pesan minimal 10 karakter.',
         ]);
+
+        Mail::to(config('mail.contact_to'))
+            ->send(new ContactMail(
+                senderName:    $validated['name'],
+                senderEmail:   $validated['email'],
+                category:      $validated['category'],
+                userMessage:   $validated['message'],
+            ));
 
         return redirect()
             ->route('contact')

@@ -78,7 +78,7 @@
             <div>
 
                 <h1 class="text-4xl font-bold text-[#0F172A]">
-                    Halo, Bambang 👋
+                    Halo, {{ auth()->user()->nickname ?? auth()->user()->name }} 👋
                 </h1>
 
                 <p class="mt-3 text-slate-500">

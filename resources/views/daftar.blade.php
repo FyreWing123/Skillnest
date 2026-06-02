@@ -139,6 +139,22 @@
                         @enderror
                     </div>
 
+                    {{-- NAMA PANGGILAN --}}
+                    <div class="reg-field">
+                        <label class="reg-label" for="nickname">Nama Panggilan</label>
+                        <input
+                            type="text"
+                            id="nickname"
+                            name="nickname"
+                            value="{{ old('nickname') }}"
+                            placeholder="Nama singkat kamu"
+                            class="input-field {{ $errors->has('nickname') ? 'input-error' : '' }}"
+                        >
+                        @error('nickname')
+                            <p class="field-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- EMAIL --}}
                     <div class="reg-field">
                         <label class="reg-label" for="email">Email</label>

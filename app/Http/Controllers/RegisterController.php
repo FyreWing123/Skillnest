@@ -23,26 +23,25 @@ class RegisterController extends Controller
     {
         // VALIDASI
         $validated = $request->validate([
-            'role' => 'required|in:mahasiswa,umkm',
-
-            'name' => 'required|string|max:255',
-
-            'email' => 'required|email|unique:users,email',
-
+            'role'     => 'required|in:mahasiswa,umkm',
+            'name'     => 'required|string|max:255',
+            'nickname' => 'required|string|max:50',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
         ]);
 
         // SIMPAN USER
         User::create([
-            'role' => $validated['role'],
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'role'     => $validated['role'],
+            'name'     => $validated['name'],
+            'nickname' => $validated['nickname'],
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
 
         // REDIRECT
         return redirect()
-            ->route('register')
-            ->with('success', 'Akun berhasil dibuat!');
+            ->route('login')
+            ->with('success', 'Akun berhasil dibuat! Silakan masuk.');
     }
 }

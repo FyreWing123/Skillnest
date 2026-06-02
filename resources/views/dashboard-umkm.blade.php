@@ -55,7 +55,7 @@
         {{-- HEADER --}}
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-4xl font-bold text-[#0F172A]">Halo, Toko Maju 👋</h1>
+                <h1 class="text-4xl font-bold text-[#0F172A]">Halo, {{ auth()->user()->nickname ?? auth()->user()->name }} 👋</h1>
                 <p class="mt-3 text-slate-500">Selamat datang kembali di dashboard SkillNest.</p>
             </div>
             <a href="{{ route('cari.mahasiswa') }}"

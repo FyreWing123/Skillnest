@@ -28,8 +28,7 @@ class LoginController extends Controller
             // regenerate session
             $request->session()->regenerate();
 
-            // redirect setelah login berhasil
-            return redirect()->intended('/dashboard');
+            return redirect()->route('home');
         }
 
         // kalau gagal

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,8 +20,6 @@ Route::view('/', 'welcome')->name('home');
 | CONTACT
 |--------------------------------------------------------------------------
 */
-
-Route::view('/contact-us', 'contactus')->name('contact');
 
 Route::get('/contact', [ContactController::class, 'index'])
     ->name('contact');
@@ -64,15 +63,6 @@ Route::view('/services', 'services')->name('services');
 Route::view('/service-detail', 'service-detail')
     ->name('service.detail');
 
-/*
-|--------------------------------------------------------------------------
-| CHAT
-|--------------------------------------------------------------------------
-*/
-Route::get('/chat', function () {
-    return view('chat');
-})->name('chat');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -111,6 +101,16 @@ Route::post('/logout', [LoginController::class, 'logout'])
 */
 
 Route::get('/dashboard', function () {
+    $role = auth()->user()->role;
+
+    if ($role === 'mahasiswa') {
+        return redirect()->route('dashboard.mahasiswa');
+    }
+
+    if ($role === 'umkm') {
+        return redirect()->route('dashboard.umkm');
+    }
+
     return view('dashboard');
 })->middleware('auth');
 
@@ -120,44 +120,27 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::view(
-    '/dashboard-mahasiswa',
-    'dashboard-mahasiswa'
-)->name('dashboard.mahasiswa');
-
-Route::view(
-    '/profile-mahasiswa',
-    'profile-mahasiswa'
-)->name('profile.mahasiswa');
-
-Route::view(
-    '/portfolio-mahasiswa',
-    'portfolio-mahasiswa' 
-)->name('portfolio.mahasiswa');
-
-Route::view(
-    '/layanan-saya',
-    'layanan-saya'
-)->name('layanan.saya');
-
-Route::view(
-    '/tambah-layanan',
-    'tambah-layanan'
-)->name('layanan.create');
-
-Route::view(
-    '/chat',
-    'chat'
-)->name('chat');
+Route::middleware('auth')->group(function () {
+    Route::view('/dashboard-mahasiswa', 'dashboard-mahasiswa')->name('dashboard.mahasiswa');
+    Route::get('/profile-mahasiswa', [ProfileController::class, 'index'])->name('profile.mahasiswa');
+    Route::post('/profile-mahasiswa', [ProfileController::class, 'update'])->name('profile.mahasiswa.update');
+    Route::view('/portfolio-mahasiswa', 'portfolio-mahasiswa')->name('portfolio.mahasiswa');
+    Route::view('/layanan-saya', 'layanan-saya')->name('layanan.saya');
+    Route::view('/tambah-layanan', 'tambah-layanan')->name('layanan.create');
+    Route::view('/chat', 'chat')->name('chat');
+});
 
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD UMKM
 |--------------------------------------------------------------------------
 */
-Route::view('/dashboard-umkm', 'dashboard-umkm')->name('dashboard.umkm');
-Route::view('/profile-umkm', 'profile-umkm')->name('profile.umkm');
-Route::view('/cari-mahasiswa', 'cari-mahasiswa')->name('cari.mahasiswa');
-Route::view('/pesanan-umkm', 'pesanan-umkm')->name('pesanan.umkm');
-Route::view('/favorit-umkm', 'favorit-umkm')->name('favorit.umkm');
+
+Route::middleware('auth')->group(function () {
+    Route::view('/dashboard-umkm', 'dashboard-umkm')->name('dashboard.umkm');
+    Route::view('/profile-umkm', 'profile-umkm')->name('profile.umkm');
+    Route::view('/cari-mahasiswa', 'cari-mahasiswa')->name('cari.mahasiswa');
+    Route::view('/pesanan-umkm', 'pesanan-umkm')->name('pesanan.umkm');
+    Route::view('/favorit-umkm', 'favorit-umkm')->name('favorit.umkm');
+});
  
