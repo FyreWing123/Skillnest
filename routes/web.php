@@ -6,6 +6,10 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\LayananController;
+use App\Http\Controllers\PesananController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,12 +125,24 @@ Route::get('/dashboard', function () {
 */
 
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard-mahasiswa', 'dashboard-mahasiswa')->name('dashboard.mahasiswa');
+    Route::get('/dashboard-mahasiswa', [DashboardController::class, 'mahasiswa'])->name('dashboard.mahasiswa');
     Route::get('/profile-mahasiswa', [ProfileController::class, 'index'])->name('profile.mahasiswa');
     Route::post('/profile-mahasiswa', [ProfileController::class, 'update'])->name('profile.mahasiswa.update');
-    Route::view('/portfolio-mahasiswa', 'portfolio-mahasiswa')->name('portfolio.mahasiswa');
-    Route::view('/layanan-saya', 'layanan-saya')->name('layanan.saya');
-    Route::view('/tambah-layanan', 'tambah-layanan')->name('layanan.create');
+    Route::get('/portfolio-mahasiswa', [PortfolioController::class, 'index'])->name('portfolio.mahasiswa');
+    Route::get('/portfolio-mahasiswa/tambah', [PortfolioController::class, 'create'])->name('portfolio.create');
+    Route::post('/portfolio-mahasiswa', [PortfolioController::class, 'store'])->name('portfolio.store');
+    Route::get('/portfolio-mahasiswa/{portfolio}/edit', [PortfolioController::class, 'edit'])->name('portfolio.edit');
+    Route::put('/portfolio-mahasiswa/{portfolio}', [PortfolioController::class, 'update'])->name('portfolio.update');
+    Route::delete('/portfolio-mahasiswa/{portfolio}', [PortfolioController::class, 'destroy'])->name('portfolio.destroy');
+    Route::get('/layanan-saya', [LayananController::class, 'index'])->name('layanan.saya');
+    Route::get('/layanan-saya/tambah', [LayananController::class, 'create'])->name('layanan.create');
+    Route::post('/layanan-saya', [LayananController::class, 'store'])->name('layanan.store');
+    Route::get('/layanan-saya/{layanan}/edit', [LayananController::class, 'edit'])->name('layanan.edit');
+    Route::put('/layanan-saya/{layanan}', [LayananController::class, 'update'])->name('layanan.update');
+    Route::delete('/layanan-saya/{layanan}', [LayananController::class, 'destroy'])->name('layanan.destroy');
+    Route::get('/layanan-saya/{layanan}/pesanan', [LayananController::class, 'showPesanan'])->name('layanan.pesanan');
+    Route::patch('/layanan-saya/{layanan}/ketersediaan', [LayananController::class, 'toggleKetersediaan'])->name('layanan.toggle-ketersediaan');
+    Route::patch('/pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])->name('pesanan.update-status');
     Route::view('/chat', 'chat')->name('chat');
 });
 
