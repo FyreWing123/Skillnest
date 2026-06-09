@@ -19,6 +19,18 @@ class PortfolioController extends Controller
         return view('portfolio-mahasiswa', compact('portfolios', 'total'));
     }
 
+    public function show(Portfolio $portfolio)
+    {
+        $portfolio->load('user');
+        $otherPortfolios = Portfolio::where('user_id', $portfolio->user_id)
+            ->where('id', '!=', $portfolio->id)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('portfolio-detail', compact('portfolio', 'otherPortfolios'));
+    }
+
     public function create()
     {
         return view('tambah-portfolio');

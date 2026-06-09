@@ -13,6 +13,7 @@ class Pesanan extends Model
         'diterima'            => 'Diterima',
         'on_going'            => 'On-going',
         'selesai'             => 'Selesai',
+        'ditolak'             => 'Ditolak',
     ];
 
     const STATUS_COLORS = [
@@ -20,6 +21,7 @@ class Pesanan extends Model
         'diterima'            => 'bg-blue-100 text-blue-700',
         'on_going'            => 'bg-purple-100 text-purple-700',
         'selesai'             => 'bg-green-100 text-green-700',
+        'ditolak'             => 'bg-red-100 text-red-700',
     ];
 
     public function layanan()

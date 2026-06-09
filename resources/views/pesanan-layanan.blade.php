@@ -47,6 +47,11 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if(session('error'))
+            <div class="mb-6 rounded-xl bg-red-50 border border-red-200 px-5 py-3 text-sm text-red-700">
+                {{ session('error') }}
+            </div>
+        @endif
 
         {{-- INFO LAYANAN + TOGGLE KETERSEDIAAN --}}
         <div class="mb-8 rounded-2xl bg-white border border-[#DCE7FB] p-6 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -101,11 +106,12 @@
                 'diterima'            => $pesanans->where('status','diterima')->count(),
                 'on_going'            => $pesanans->where('status','on_going')->count(),
                 'selesai'             => $pesanans->where('status','selesai')->count(),
+                'ditolak'             => $pesanans->where('status','ditolak')->count(),
             ];
         @endphp
-        <div class="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="mb-8 grid grid-cols-2 md:grid-cols-5 gap-4">
             <div class="rounded-2xl bg-yellow-50 border border-yellow-100 p-4">
-                <p class="text-xs text-yellow-600 font-semibold">Menunggu Verifikasi</p>
+                <p class="text-xs text-yellow-600 font-semibold">Menunggu</p>
                 <p class="text-3xl font-bold text-yellow-700 mt-1">{{ $counts['menunggu_verifikasi'] }}</p>
             </div>
             <div class="rounded-2xl bg-blue-50 border border-blue-100 p-4">
@@ -119,6 +125,10 @@
             <div class="rounded-2xl bg-green-50 border border-green-100 p-4">
                 <p class="text-xs text-green-600 font-semibold">Selesai</p>
                 <p class="text-3xl font-bold text-green-700 mt-1">{{ $counts['selesai'] }}</p>
+            </div>
+            <div class="rounded-2xl bg-red-50 border border-red-100 p-4">
+                <p class="text-xs text-red-600 font-semibold">Ditolak</p>
+                <p class="text-3xl font-bold text-red-700 mt-1">{{ $counts['ditolak'] }}</p>
             </div>
         </div>
 
@@ -160,28 +170,47 @@
                             {{ $pesanan->statusLabel() }}
                         </span>
 
-                        {{-- Dropdown ganti status --}}
-                        <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST"
-                              class="flex items-center gap-2">
-                            @csrf
-                            @method('PATCH')
-                            <select name="status"
-                                class="rounded-lg border border-[#DCE7FB] bg-[#F6FAFF] px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#2563EB]"
-                                onchange="this.form.submit()">
-                                <option value="menunggu_verifikasi" {{ $pesanan->status === 'menunggu_verifikasi' ? 'selected' : '' }}>
-                                    Menunggu Verifikasi
-                                </option>
-                                <option value="diterima" {{ $pesanan->status === 'diterima' ? 'selected' : '' }}>
-                                    Diterima
-                                </option>
-                                <option value="on_going" {{ $pesanan->status === 'on_going' ? 'selected' : '' }}>
-                                    On-going
-                                </option>
-                                <option value="selesai" {{ $pesanan->status === 'selesai' ? 'selected' : '' }}>
-                                    Selesai
-                                </option>
-                            </select>
-                        </form>
+                        {{-- Contextual action buttons --}}
+                        @if($pesanan->status === 'menunggu_verifikasi')
+                            <div class="flex gap-2">
+                                <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="diterima">
+                                    <button type="submit"
+                                        class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700 transition">
+                                        ✓ Terima
+                                    </button>
+                                </form>
+                                <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="ditolak">
+                                    <button type="submit"
+                                        class="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 transition">
+                                        ✕ Tolak
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif($pesanan->status === 'diterima')
+                            <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="on_going">
+                                <button type="submit"
+                                    class="rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-700 transition">
+                                    ▶ Mulai Pengerjaan
+                                </button>
+                            </form>
+                        @elseif($pesanan->status === 'on_going')
+                            <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="selesai">
+                                <button type="submit"
+                                    class="rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white hover:bg-green-700 transition">
+                                    ✓ Tandai Selesai
+                                </button>
+                            </form>
+                        @else
+                            <span class="text-xs text-slate-400 italic">—</span>
+                        @endif
 
                     </div>
 

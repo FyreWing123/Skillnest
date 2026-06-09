@@ -29,6 +29,11 @@ class User extends Authenticatable
         'semester',
         'bio',
         'skills',
+        'nama_usaha',
+        'kategori_usaha',
+        'no_whatsapp',
+        'alamat_usaha',
+        'deskripsi_usaha',
     ];
 
     /**
@@ -52,5 +57,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function layanans()
+    {
+        return $this->hasMany(\App\Models\Layanan::class);
+    }
+
+    public function portfolios()
+    {
+        return $this->hasMany(\App\Models\Portfolio::class);
+    }
+
+    public function getSkillsArrayAttribute(): array
+    {
+        if (!$this->skills) return [];
+        $decoded = json_decode($this->skills, true);
+        return is_array($decoded) ? $decoded : [];
     }
 }

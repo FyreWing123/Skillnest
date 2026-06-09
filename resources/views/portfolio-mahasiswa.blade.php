@@ -103,7 +103,7 @@
                     @foreach($portfolios as $portfolio)
                     <div class="overflow-hidden rounded-[2rem] bg-white shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
 
-                        <div class="overflow-hidden h-56 bg-slate-100">
+                        <a href="{{ route('portfolio.show', $portfolio->id) }}" class="block overflow-hidden h-56 bg-slate-100">
                             @if($portfolio->foto)
                                 <img
                                     src="{{ asset('storage/' . $portfolio->foto) }}"
@@ -115,10 +115,12 @@
                                     <span class="text-white text-lg font-bold text-center px-4">{{ $portfolio->judul }}</span>
                                 </div>
                             @endif
-                        </div>
+                        </a>
 
                         <div class="p-6">
-                            <h3 class="text-xl font-bold text-[#0F172A]">{{ $portfolio->judul }}</h3>
+                            <a href="{{ route('portfolio.show', $portfolio->id) }}" class="block">
+                                <h3 class="text-xl font-bold text-[#0F172A] hover:text-[#1846A3] transition">{{ $portfolio->judul }}</h3>
+                            </a>
                             <p class="mt-2 text-sm text-slate-500 line-clamp-2">{{ $portfolio->deskripsi }}</p>
 
                             <div class="mt-6 flex gap-3">

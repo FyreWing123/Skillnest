@@ -125,7 +125,7 @@
 
                     {{-- NAMA LENGKAP --}}
                     <div class="reg-field">
-                        <label class="reg-label" for="name">Nama Lengkap</label>
+                        <label class="reg-label" for="name" id="label-name">Nama Lengkap</label>
                         <input
                             type="text"
                             id="name"
@@ -139,8 +139,8 @@
                         @enderror
                     </div>
 
-                    {{-- NAMA PANGGILAN --}}
-                    <div class="reg-field">
+                    {{-- NAMA PANGGILAN (mahasiswa only) --}}
+                    <div class="reg-field" id="field-nickname">
                         <label class="reg-label" for="nickname">Nama Panggilan</label>
                         <input
                             type="text"
@@ -151,6 +151,56 @@
                             class="input-field {{ $errors->has('nickname') ? 'input-error' : '' }}"
                         >
                         @error('nickname')
+                            <p class="field-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- NAMA USAHA (umkm only) --}}
+                    <div class="reg-field" id="field-nama-usaha" style="display:none">
+                        <label class="reg-label" for="nama_usaha">Nama Usaha</label>
+                        <input
+                            type="text"
+                            id="nama_usaha"
+                            name="nama_usaha"
+                            value="{{ old('nama_usaha') }}"
+                            placeholder="Contoh: Toko Maju"
+                            class="input-field {{ $errors->has('nama_usaha') ? 'input-error' : '' }}"
+                        >
+                        @error('nama_usaha')
+                            <p class="field-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- KATEGORI USAHA (umkm only) --}}
+                    <div class="reg-field" id="field-kategori" style="display:none">
+                        <label class="reg-label" for="kategori_usaha">Kategori Usaha</label>
+                        <select
+                            id="kategori_usaha"
+                            name="kategori_usaha"
+                            class="input-field {{ $errors->has('kategori_usaha') ? 'input-error' : '' }}"
+                        >
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach(['Kuliner & F&B','Fashion','Teknologi','Jasa','Kesehatan','Pendidikan','Retail','Lainnya'] as $kat)
+                                <option value="{{ $kat }}" {{ old('kategori_usaha') === $kat ? 'selected' : '' }}>{{ $kat }}</option>
+                            @endforeach
+                        </select>
+                        @error('kategori_usaha')
+                            <p class="field-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- NO WHATSAPP (umkm only) --}}
+                    <div class="reg-field" id="field-whatsapp" style="display:none">
+                        <label class="reg-label" for="no_whatsapp">No. WhatsApp</label>
+                        <input
+                            type="text"
+                            id="no_whatsapp"
+                            name="no_whatsapp"
+                            value="{{ old('no_whatsapp') }}"
+                            placeholder="+62 812 3456 7890"
+                            class="input-field {{ $errors->has('no_whatsapp') ? 'input-error' : '' }}"
+                        >
+                        @error('no_whatsapp')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>
@@ -262,6 +312,14 @@
             // Highlight left panel cards
             cardMahasiswa.classList.toggle('reg-role-card--active', role === 'mahasiswa');
             cardUmkm.classList.toggle('reg-role-card--active',      role === 'umkm');
+
+            // Show/hide fields based on role
+            const isMahasiswa = role === 'mahasiswa';
+            document.getElementById('field-nickname').style.display    = isMahasiswa ? '' : 'none';
+            document.getElementById('field-nama-usaha').style.display  = isMahasiswa ? 'none' : '';
+            document.getElementById('field-kategori').style.display    = isMahasiswa ? 'none' : '';
+            document.getElementById('field-whatsapp').style.display    = isMahasiswa ? 'none' : '';
+            document.getElementById('label-name').textContent          = isMahasiswa ? 'Nama Lengkap' : 'Nama Pemilik / Perwakilan';
         }
 
         // Set initial state

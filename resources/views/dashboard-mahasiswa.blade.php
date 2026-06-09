@@ -26,6 +26,15 @@
                class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100">Portfolio</a>
             <a href="{{ route('layanan.saya') }}"
                class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100">Layanan Saya</a>
+            <a href="{{ route('pesanan.saya') }}"
+               class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100 relative">
+                Kelola Pesanan
+                @if($pesananMenunggu->count() > 0)
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-white">
+                        {{ $pesananMenunggu->count() }}
+                    </span>
+                @endif
+            </a>
             <a href="{{ route('chat') }}"
                class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100">Pesan</a>
         </nav>
