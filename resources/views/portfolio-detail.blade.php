@@ -75,9 +75,14 @@
                 {{-- Author --}}
                 <div class="flex items-center justify-between flex-wrap gap-4 mb-6 pb-6 border-b border-[#F1F5F9]">
                     <div class="flex items-center gap-3">
-                        <div class="h-11 w-11 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold shrink-0">
-                            {{ $initials }}
-                        </div>
+                        @if($owner->photo)
+                            <img src="{{ asset('storage/' . $owner->photo) }}" alt="{{ $firstName }}"
+                                 class="h-11 w-11 rounded-full object-cover shrink-0">
+                        @else
+                            <div class="h-11 w-11 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold shrink-0">
+                                {{ $initials }}
+                            </div>
+                        @endif
                         <div>
                             <p class="font-bold text-[#0F172A]">{{ $firstName }}</p>
                             @if($owner->jurusan)

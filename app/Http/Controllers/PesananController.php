@@ -82,7 +82,7 @@ class PesananController extends Controller
         $filterStatus = $request->input('status');
 
         $query = Pesanan::where('user_id', auth()->id())
-            ->with(['layanan.user'])
+            ->with(['layanan.user', 'rating'])
             ->latest();
 
         if ($filterStatus) {

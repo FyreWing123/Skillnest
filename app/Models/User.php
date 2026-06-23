@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'role',
+        'is_active',
         'name',
         'nickname',
         'email',
@@ -34,6 +35,7 @@ class User extends Authenticatable
         'no_whatsapp',
         'alamat_usaha',
         'deskripsi_usaha',
+        'photo',
     ];
 
     /**
@@ -64,9 +66,30 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Layanan::class);
     }
 
+    public function pesanans()
+    {
+        return $this->hasMany(\App\Models\Pesanan::class);
+    }
+
     public function portfolios()
     {
         return $this->hasMany(\App\Models\Portfolio::class);
+    }
+
+    public function ratingsReceived()
+    {
+        return $this->hasMany(\App\Models\Rating::class, 'mahasiswa_id');
+    }
+
+    public function avgRating(): ?float
+    {
+        $avg = $this->ratingsReceived()->avg('stars');
+        return $avg ? round($avg, 1) : null;
+    }
+
+    public function ratingCount(): int
+    {
+        return $this->ratingsReceived()->count();
     }
 
     public function getSkillsArrayAttribute(): array

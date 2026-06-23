@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Favorit;
 use App\Models\Layanan;
 use App\Models\Pesanan;
 use App\Models\Portfolio;
@@ -46,6 +47,40 @@ class DashboardController extends Controller
             'pesananMenunggu',
             'pesananOnGoing',
             'portfolioTerbaru',
+        ));
+    }
+
+    public function umkm()
+    {
+        $userId = auth()->id();
+
+        $activeStatuses = ['menunggu_verifikasi', 'diterima', 'on_going'];
+
+        $totalPesanan    = Pesanan::where('user_id', $userId)->count();
+        $pesananAktif    = Pesanan::where('user_id', $userId)->whereIn('status', $activeStatuses)->count();
+        $pesananSelesai  = Pesanan::where('user_id', $userId)->where('status', 'selesai')->count();
+        $totalFavorit    = Favorit::where('user_id', $userId)->count();
+
+        $pesananAktifList = Pesanan::where('user_id', $userId)
+            ->whereIn('status', $activeStatuses)
+            ->with(['layanan', 'layanan.user'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $favoritList = Favorit::where('user_id', $userId)
+            ->with(['mahasiswa', 'mahasiswa.layanans'])
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('dashboard-umkm', compact(
+            'totalPesanan',
+            'pesananAktif',
+            'pesananSelesai',
+            'totalFavorit',
+            'pesananAktifList',
+            'favoritList',
         ));
     }
 }

@@ -112,7 +112,7 @@ class LayananController extends Controller
             abort(403);
         }
 
-        $pesanans = $layanan->pesanans()->with('user')->latest()->get();
+        $pesanans = $layanan->pesanans()->with(['user', 'rating'])->latest()->get();
 
         return view('pesanan-layanan', compact('layanan', 'pesanans'));
     }
@@ -128,6 +128,29 @@ class LayananController extends Controller
 
         return back()->with('success',
             'Status layanan diubah ke ' . strtoupper($layanan->ketersediaan) . '.');
+    }
+
+    public function publicDetail(Layanan $layanan)
+    {
+        $layanan->load('user');
+
+        $pesananIds  = $layanan->pesanans()->pluck('id');
+        $ratings     = \App\Models\Rating::whereIn('pesanan_id', $pesananIds)
+                        ->with('umkm')
+                        ->latest()
+                        ->get();
+        $avgRating   = $ratings->count() ? round($ratings->avg('stars'), 1) : null;
+        $ratingCount = $ratings->count();
+
+        $hasActiveOrder = false;
+        if (auth()->check() && auth()->user()->role === 'umkm') {
+            $hasActiveOrder = \App\Models\Pesanan::where('layanan_id', $layanan->id)
+                ->where('user_id', auth()->id())
+                ->whereNotIn('status', ['selesai', 'ditolak'])
+                ->exists();
+        }
+
+        return view('detail-layanan', compact('layanan', 'ratings', 'avgRating', 'ratingCount', 'hasActiveOrder'));
     }
 
     public function destroy(Layanan $layanan)

@@ -64,19 +64,19 @@
         <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <div class="rounded-[2rem] bg-white p-6 shadow-sm">
                 <p class="text-slate-500 text-sm">Total Pesanan</p>
-                <h2 class="mt-3 text-4xl font-bold text-[#1846A3]">8</h2>
+                <h2 class="mt-3 text-4xl font-bold text-[#1846A3]">{{ $totalPesanan }}</h2>
             </div>
             <div class="rounded-[2rem] bg-white p-6 shadow-sm">
                 <p class="text-slate-500 text-sm">Pesanan Aktif</p>
-                <h2 class="mt-3 text-4xl font-bold text-[#1846A3]">3</h2>
+                <h2 class="mt-3 text-4xl font-bold text-[#1846A3]">{{ $pesananAktif }}</h2>
             </div>
             <div class="rounded-[2rem] bg-white p-6 shadow-sm">
                 <p class="text-slate-500 text-sm">Selesai</p>
-                <h2 class="mt-3 text-4xl font-bold text-[#1846A3]">5</h2>
+                <h2 class="mt-3 text-4xl font-bold text-[#1846A3]">{{ $pesananSelesai }}</h2>
             </div>
             <div class="rounded-[2rem] bg-white p-6 shadow-sm">
                 <p class="text-slate-500 text-sm">Mahasiswa Favorit</p>
-                <h2 class="mt-3 text-4xl font-bold text-[#F59E0B]">★ 4</h2>
+                <h2 class="mt-3 text-4xl font-bold text-[#F59E0B]">★ {{ $totalFavorit }}</h2>
             </div>
         </div>
 
@@ -105,38 +105,39 @@
                 <h2 class="text-2xl font-bold text-[#0F172A]">Pesanan Aktif</h2>
                 <a href="{{ route('pesanan.umkm') }}" class="text-sm font-semibold text-[#2563EB]">Lihat Semua</a>
             </div>
-            <div class="mt-6 space-y-0">
-                <div class="flex items-center justify-between border-b py-4">
-                    <div class="flex items-center gap-4">
-                        <div class="h-10 w-10 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-sm">BW</div>
-                        <div>
-                            <p class="font-semibold">Budi Wicaksono</p>
-                            <p class="text-sm text-slate-500">Landing Page UMKM</p>
+
+            @if($pesananAktifList->isEmpty())
+                <p class="mt-6 text-sm text-slate-400 text-center py-8">Belum ada pesanan aktif.</p>
+            @else
+                <div class="mt-6 space-y-0">
+                    @foreach($pesananAktifList as $p)
+                    @php
+                        $mhs      = $p->layanan->user ?? null;
+                        $mName    = $mhs ? ($mhs->nickname ?? $mhs->name) : '—';
+                        $initials = strtoupper(substr($mName, 0, 2));
+                    @endphp
+                    <div class="flex items-center justify-between {{ !$loop->last ? 'border-b' : '' }} py-4">
+                        <div class="flex items-center gap-4">
+                            @if($mhs && $mhs->photo)
+                                <img src="{{ asset('storage/' . $mhs->photo) }}" alt="{{ $mName }}"
+                                     class="h-10 w-10 rounded-full object-cover shrink-0">
+                            @else
+                                <div class="h-10 w-10 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-sm shrink-0">
+                                    {{ $initials }}
+                                </div>
+                            @endif
+                            <div>
+                                <p class="font-semibold text-[#0F172A]">{{ $mName }}</p>
+                                <p class="text-sm text-slate-500">{{ $p->layanan->nama ?? '—' }}</p>
+                            </div>
                         </div>
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $p->statusColor() }}">
+                            {{ $p->statusLabel() }}
+                        </span>
                     </div>
-                    <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Dalam Proses</span>
+                    @endforeach
                 </div>
-                <div class="flex items-center justify-between border-b py-4">
-                    <div class="flex items-center gap-4">
-                        <div class="h-10 w-10 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-sm">AR</div>
-                        <div>
-                            <p class="font-semibold">Anisa Rahmawati</p>
-                            <p class="text-sm text-slate-500">Desain Logo & Branding</p>
-                        </div>
-                    </div>
-                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Menunggu Konfirmasi</span>
-                </div>
-                <div class="flex items-center justify-between py-4">
-                    <div class="flex items-center gap-4">
-                        <div class="h-10 w-10 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-sm">DP</div>
-                        <div>
-                            <p class="font-semibold">Dimas Pratama</p>
-                            <p class="text-sm text-slate-500">Foto Produk</p>
-                        </div>
-                    </div>
-                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Selesai</span>
-                </div>
-            </div>
+            @endif
         </div>
 
         {{-- MAHASISWA FAVORIT --}}
@@ -145,47 +146,47 @@
                 <h2 class="text-2xl font-bold text-[#0F172A]">Mahasiswa Favorit</h2>
                 <a href="{{ route('favorit.umkm') }}" class="text-sm font-semibold text-[#2563EB]">Lihat Semua</a>
             </div>
-            <div class="mt-6 grid gap-4 md:grid-cols-3">
-                <div class="rounded-2xl border border-[#E2E8F0] p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="h-12 w-12 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold">BW</div>
-                        <div>
-                            <p class="font-semibold text-[#0F172A]">Budi Wicaksono</p>
-                            <p class="text-xs text-slate-500">Web Development</p>
+
+            @if($favoritList->isEmpty())
+                <p class="mt-6 text-sm text-slate-400 text-center py-8">Belum ada mahasiswa favorit.</p>
+            @else
+                <div class="mt-6 grid gap-4 md:grid-cols-3">
+                    @foreach($favoritList as $fav)
+                    @php
+                        $m        = $fav->mahasiswa;
+                        $fName    = explode(' ', trim($m->nickname ?? $m->name))[0];
+                        $initials = strtoupper(substr($fName, 0, 2));
+                        $skill    = $m->layanans->first()->kategori ?? ($m->jurusan ?? 'Mahasiswa');
+                        $avg      = $m->avgRating();
+                    @endphp
+                    <div class="rounded-2xl border border-[#E2E8F0] p-5">
+                        <div class="flex items-center gap-3">
+                            @if($m->photo)
+                                <img src="{{ asset('storage/' . $m->photo) }}" alt="{{ $fName }}"
+                                     class="h-12 w-12 rounded-full object-cover shrink-0">
+                            @else
+                                <div class="h-12 w-12 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold shrink-0">
+                                    {{ $initials }}
+                                </div>
+                            @endif
+                            <div class="min-w-0">
+                                <p class="font-semibold text-[#0F172A] truncate">{{ $fName }}</p>
+                                <p class="text-xs text-slate-500 truncate">{{ $skill }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between">
+                            @if($avg)
+                                <span class="text-sm text-[#F59E0B] font-semibold">★ {{ number_format($avg, 1) }}</span>
+                            @else
+                                <span class="text-xs text-slate-400">Belum ada rating</span>
+                            @endif
+                            <a href="{{ route('mahasiswa.profil', $m->id) }}"
+                               class="text-xs font-semibold text-[#2563EB]">Lihat Profil</a>
                         </div>
                     </div>
-                    <div class="mt-3 flex items-center justify-between">
-                        <span class="text-sm text-[#F59E0B] font-semibold">★ 4.9</span>
-                        <a href="#" class="text-xs font-semibold text-[#2563EB]">Lihat Profil</a>
-                    </div>
+                    @endforeach
                 </div>
-                <div class="rounded-2xl border border-[#E2E8F0] p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="h-12 w-12 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold">AR</div>
-                        <div>
-                            <p class="font-semibold text-[#0F172A]">Anisa Rahmawati</p>
-                            <p class="text-xs text-slate-500">UI/UX Design</p>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center justify-between">
-                        <span class="text-sm text-[#F59E0B] font-semibold">★ 4.8</span>
-                        <a href="#" class="text-xs font-semibold text-[#2563EB]">Lihat Profil</a>
-                    </div>
-                </div>
-                <div class="rounded-2xl border border-[#E2E8F0] p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="h-12 w-12 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold">DP</div>
-                        <div>
-                            <p class="font-semibold text-[#0F172A]">Dimas Pratama</p>
-                            <p class="text-xs text-slate-500">Fotografi</p>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex items-center justify-between">
-                        <span class="text-sm text-[#F59E0B] font-semibold">★ 4.7</span>
-                        <a href="#" class="text-xs font-semibold text-[#2563EB]">Lihat Profil</a>
-                    </div>
-                </div>
-            </div>
+            @endif
         </div>
 
     </main>

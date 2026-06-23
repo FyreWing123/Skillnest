@@ -70,9 +70,14 @@
                         $firstName = explode(' ', trim($user->nickname ?? $user->name))[0];
                         $initials  = strtoupper(substr($firstName, 0, 2));
                     @endphp
-                    <div class="mx-auto h-20 w-20 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-2xl mb-4">
-                        {{ $initials }}
-                    </div>
+                    @if($user->photo)
+                        <img src="{{ asset('storage/' . $user->photo) }}" alt="{{ $user->nickname ?? $user->name }}"
+                             class="mx-auto h-20 w-20 rounded-full object-cover mb-4 ring-4 ring-[#DCE7FB]">
+                    @else
+                        <div class="mx-auto h-20 w-20 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-2xl mb-4">
+                            {{ $initials }}
+                        </div>
+                    @endif
                     <h1 class="text-2xl font-bold text-[#0F172A]">{{ $user->nickname ?? $user->name }}</h1>
                     @if($user->jurusan)
                         <p class="mt-1 text-sm font-semibold text-[#2563EB]">{{ $user->jurusan }}</p>
@@ -82,6 +87,22 @@
                     @endif
                     @if($user->semester)
                         <p class="mt-0.5 text-xs text-slate-400">Semester {{ $user->semester }}</p>
+                    @endif
+
+                    {{-- Rating --}}
+                    @if($avgRating)
+                        <div class="mt-4 flex items-center justify-center gap-2">
+                            <span class="text-yellow-400 text-lg leading-none">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= floor($avgRating))★
+                                    @elseif($i - $avgRating < 1)★
+                                    @else☆
+                                    @endif
+                                @endfor
+                            </span>
+                            <span class="font-bold text-slate-700 text-sm">{{ number_format($avgRating, 1) }}</span>
+                            <span class="text-slate-400 text-xs">({{ $ratingCount }} ulasan)</span>
+                        </div>
                     @endif
 
                     @if($user->bio)
@@ -133,6 +154,31 @@
                             @endif
                             <p class="text-xs font-semibold text-[#0F172A] truncate px-2 py-1.5">{{ $porto->judul }}</p>
                         </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                {{-- Ulasan --}}
+                @if($ratings->isNotEmpty())
+                <div class="rounded-4xl bg-white border border-[#DCE7FB] p-6 shadow-sm">
+                    <h3 class="font-bold text-[#0F172A] mb-4">Ulasan</h3>
+                    <div class="space-y-4">
+                        @foreach($ratings as $r)
+                        <div class="border-b border-[#F1F5F9] pb-4 last:border-0 last:pb-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-sm font-semibold text-[#0F172A]">
+                                    {{ explode(' ', trim($r->umkm->nama_usaha ?? $r->umkm->name))[0] }}
+                                </p>
+                                <span class="text-yellow-400 text-sm leading-none">
+                                    @for($i = 1; $i <= 5; $i++){{ $i <= $r->stars ? '★' : '☆' }}@endfor
+                                </span>
+                            </div>
+                            @if($r->ulasan)
+                                <p class="mt-1 text-xs text-slate-500 leading-5">{{ $r->ulasan }}</p>
+                            @endif
+                            <p class="mt-1 text-xs text-slate-300">{{ $r->created_at->format('d M Y') }}</p>
+                        </div>
                         @endforeach
                     </div>
                 </div>
@@ -190,21 +236,27 @@
                                         <p class="mt-2 text-sm text-slate-500 line-clamp-2">{{ $layanan->deskripsi_singkat }}</p>
                                     @endif
 
-                                    <div class="mt-4 flex items-center justify-between">
+                                    <div class="mt-4 flex items-center justify-between gap-3">
                                         <p class="font-bold text-xl text-[#1846A3]">{{ $layanan->formatHarga() }}</p>
 
-                                        @if(auth()->user()->role === 'umkm')
-                                            @if($layanan->isOpen())
-                                                <button onclick="openModal({{ $layanan->id }}, '{{ addslashes($layanan->nama) }}', '{{ $layanan->formatHarga() }}')"
-                                                        class="rounded-xl bg-[#1846A3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#2563EB] transition">
-                                                    Pesan Layanan
-                                                </button>
-                                            @else
-                                                <span class="rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-400">
-                                                    Tidak Tersedia
-                                                </span>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <a href="{{ route('layanan.detail', $layanan->id) }}"
+                                               class="rounded-xl border border-[#1846A3] px-4 py-2 text-xs font-semibold text-[#1846A3] hover:bg-[#EAF2FF] transition">
+                                                Lihat Detail
+                                            </a>
+                                            @if(auth()->user()->role === 'umkm')
+                                                @if($layanan->isOpen())
+                                                    <button onclick="openModal({{ $layanan->id }}, '{{ addslashes($layanan->nama) }}', '{{ $layanan->formatHarga() }}')"
+                                                            class="rounded-xl bg-[#1846A3] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2563EB] transition">
+                                                        Pesan
+                                                    </button>
+                                                @else
+                                                    <span class="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-400">
+                                                        Tidak Tersedia
+                                                    </span>
+                                                @endif
                                             @endif
-                                        @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>

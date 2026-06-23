@@ -70,9 +70,14 @@
                     {{-- Header --}}
                     <div class="flex items-start justify-between">
                         <div class="flex items-center gap-4">
-                            <div class="h-14 w-14 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-lg shrink-0">
-                                {{ $initial }}
-                            </div>
+                            @if($m->photo)
+                                <img src="{{ asset('storage/' . $m->photo) }}" alt="{{ $firstName }}"
+                                     class="h-14 w-14 rounded-full object-cover shrink-0">
+                            @else
+                                <div class="h-14 w-14 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-lg shrink-0">
+                                    {{ $initial }}
+                                </div>
+                            @endif
                             <div class="min-w-0">
                                 <p class="font-bold text-[#0F172A] truncate">{{ $firstName }}</p>
                                 <p class="text-sm text-slate-500">{{ $keahlian }}</p>

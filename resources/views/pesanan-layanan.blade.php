@@ -65,14 +65,32 @@
                         <span class="text-white text-xs font-bold text-center px-2">{{ $layanan->nama }}</span>
                     </div>
                 @endif
+                @php
+                    $pesananIds  = $pesanans->pluck('id');
+                    $avgRating   = \App\Models\Rating::whereIn('pesanan_id', $pesananIds)->avg('stars');
+                    $ratingCount = \App\Models\Rating::whereIn('pesanan_id', $pesananIds)->count();
+                @endphp
                 <div>
                     <h2 class="font-bold text-[#0F172A] text-lg">{{ $layanan->nama }}</h2>
                     <p class="text-sm text-slate-500">{{ $layanan->kategori }} &bull; {{ $layanan->formatHarga() }} &bull; {{ $layanan->estimasi }}</p>
-                    <div class="mt-2 flex items-center gap-2">
-                        <span class="text-xs font-semibold text-slate-500">Total pesanan:</span>
-                        <span class="rounded-lg bg-[#EAF2FF] px-2.5 py-0.5 text-xs font-bold text-[#1846A3]">
-                            {{ $pesanans->count() }}
-                        </span>
+                    <div class="mt-2 flex items-center gap-4 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-slate-500">Total pesanan:</span>
+                            <span class="rounded-lg bg-[#EAF2FF] px-2.5 py-0.5 text-xs font-bold text-[#1846A3]">
+                                {{ $pesanans->count() }}
+                            </span>
+                        </div>
+                        @if($avgRating)
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-yellow-400 text-sm leading-none">
+                                    @for($i = 1; $i <= 5; $i++){{ $i <= round($avgRating) ? '★' : '☆' }}@endfor
+                                </span>
+                                <span class="text-sm font-bold text-slate-700">{{ number_format($avgRating, 1) }}</span>
+                                <span class="text-xs text-slate-400">({{ $ratingCount }} ulasan)</span>
+                            </div>
+                        @else
+                            <span class="text-xs text-slate-400">Belum ada rating</span>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -145,74 +163,100 @@
         @else
             <div class="space-y-4">
                 @foreach($pesanans as $pesanan)
-                <div class="rounded-2xl bg-white border border-[#DCE7FB] p-6 shadow-sm flex flex-col md:flex-row md:items-center gap-5">
+                <div class="rounded-2xl bg-white border border-[#DCE7FB] shadow-sm overflow-hidden">
 
-                    {{-- Avatar & Info Pemesan --}}
-                    <div class="flex items-center gap-4 flex-1 min-w-0">
-                        <div class="h-12 w-12 rounded-full bg-linear-to-br from-[#2563EB] to-[#1149C7] flex items-center justify-center text-white font-bold text-lg shrink-0">
-                            {{ strtoupper(substr($pesanan->user->name, 0, 1)) }}
+                    {{-- Baris utama pesanan --}}
+                    <div class="p-6 flex flex-col md:flex-row md:items-center gap-5">
+
+                        {{-- Avatar & Info Pemesan --}}
+                        <div class="flex items-center gap-4 flex-1 min-w-0">
+                            @if($pesanan->user->photo)
+                                <img src="{{ asset('storage/' . $pesanan->user->photo) }}" alt=""
+                                     class="h-12 w-12 rounded-full object-cover shrink-0">
+                            @else
+                                <div class="h-12 w-12 rounded-full bg-linear-to-br from-[#2563EB] to-[#1149C7] flex items-center justify-center text-white font-bold text-lg shrink-0">
+                                    {{ strtoupper(substr($pesanan->user->name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <div class="min-w-0">
+                                <p class="font-bold text-[#0F172A]">{{ $pesanan->user->name }}</p>
+                                <p class="text-xs text-slate-400">{{ $pesanan->user->email }}</p>
+                                @if($pesanan->pesan)
+                                    <p class="mt-1.5 text-sm text-slate-600 italic line-clamp-2">"{{ $pesanan->pesan }}"</p>
+                                @endif
+                            </div>
                         </div>
-                        <div class="min-w-0">
-                            <p class="font-bold text-[#0F172A]">{{ $pesanan->user->name }}</p>
-                            <p class="text-xs text-slate-400">{{ $pesanan->user->email }}</p>
-                            @if($pesanan->pesan)
-                                <p class="mt-1.5 text-sm text-slate-600 italic line-clamp-2">"{{ $pesanan->pesan }}"</p>
+
+                        {{-- Tanggal & Status Badge --}}
+                        <div class="flex flex-col items-start md:items-end gap-3 shrink-0">
+                            <p class="text-xs text-slate-400">{{ $pesanan->created_at->format('d M Y, H:i') }}</p>
+                            <span class="rounded-lg px-3 py-1 text-xs font-bold {{ $pesanan->statusColor() }}">
+                                {{ $pesanan->statusLabel() }}
+                            </span>
+
+                            @if($pesanan->status === 'menunggu_verifikasi')
+                                <div class="flex gap-2">
+                                    <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="diterima">
+                                        <button type="submit"
+                                            class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700 transition">
+                                            ✓ Terima
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="ditolak">
+                                        <button type="submit"
+                                            class="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 transition">
+                                            ✕ Tolak
+                                        </button>
+                                    </form>
+                                </div>
+                            @elseif($pesanan->status === 'diterima')
+                                <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="on_going">
+                                    <button type="submit"
+                                        class="rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-700 transition">
+                                        ▶ Mulai Pengerjaan
+                                    </button>
+                                </form>
+                            @elseif($pesanan->status === 'on_going')
+                                <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="selesai">
+                                    <button type="submit"
+                                        class="rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white hover:bg-green-700 transition">
+                                        ✓ Tandai Selesai
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-xs text-slate-400 italic">—</span>
                             @endif
                         </div>
+
                     </div>
 
-                    {{-- Tanggal & Status Badge --}}
-                    <div class="flex flex-col items-start md:items-end gap-3 shrink-0">
-                        <p class="text-xs text-slate-400">
-                            {{ $pesanan->created_at->format('d M Y, H:i') }}
-                        </p>
-                        <span class="rounded-lg px-3 py-1 text-xs font-bold {{ $pesanan->statusColor() }}">
-                            {{ $pesanan->statusLabel() }}
-                        </span>
-
-                        {{-- Contextual action buttons --}}
-                        @if($pesanan->status === 'menunggu_verifikasi')
-                            <div class="flex gap-2">
-                                <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="status" value="diterima">
-                                    <button type="submit"
-                                        class="rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700 transition">
-                                        ✓ Terima
-                                    </button>
-                                </form>
-                                <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="status" value="ditolak">
-                                    <button type="submit"
-                                        class="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-100 transition">
-                                        ✕ Tolak
-                                    </button>
-                                </form>
+                    {{-- Rating dari UMKM (hanya tampil kalau ada) --}}
+                    @if($pesanan->rating)
+                        <div class="border-t border-[#F1F5F9] mx-6 py-4 flex items-start gap-3">
+                            <span class="text-yellow-400 text-base leading-none shrink-0 mt-0.5">
+                                @for($i = 1; $i <= 5; $i++){{ $i <= $pesanan->rating->stars ? '★' : '☆' }}@endfor
+                            </span>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold text-[#0F172A]">{{ $pesanan->rating->stars }}/5</span>
+                                    <span class="text-xs text-slate-400">· {{ $pesanan->rating->created_at->format('d M Y') }}</span>
+                                </div>
+                                @if($pesanan->rating->ulasan)
+                                    <p class="mt-1 text-sm text-slate-600">"{{ $pesanan->rating->ulasan }}"</p>
+                                @else
+                                    <p class="mt-1 text-xs text-slate-400 italic">Tidak ada ulasan tertulis.</p>
+                                @endif
                             </div>
-                        @elseif($pesanan->status === 'diterima')
-                            <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
-                                @csrf @method('PATCH')
-                                <input type="hidden" name="status" value="on_going">
-                                <button type="submit"
-                                    class="rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-700 transition">
-                                    ▶ Mulai Pengerjaan
-                                </button>
-                            </form>
-                        @elseif($pesanan->status === 'on_going')
-                            <form action="{{ route('pesanan.update-status', $pesanan->id) }}" method="POST">
-                                @csrf @method('PATCH')
-                                <input type="hidden" name="status" value="selesai">
-                                <button type="submit"
-                                    class="rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white hover:bg-green-700 transition">
-                                    ✓ Tandai Selesai
-                                </button>
-                            </form>
-                        @else
-                            <span class="text-xs text-slate-400 italic">—</span>
-                        @endif
-
-                    </div>
+                        </div>
+                    @endif
 
                 </div>
                 @endforeach

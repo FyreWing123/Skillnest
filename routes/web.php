@@ -16,6 +16,8 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\FavoritController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,8 +72,9 @@ Route::get('/services', [ServicesController::class, 'index'])->name('services');
 |--------------------------------------------------------------------------
 */
 
-Route::view('/service-detail', 'service-detail')
-    ->name('service.detail');
+Route::get('/layanan/{layanan}/detail', [LayananController::class, 'publicDetail'])
+    ->name('layanan.detail')
+    ->middleware('auth');
 
 
 /*
@@ -121,6 +124,10 @@ Route::get('/dashboard', function () {
         return redirect()->route('dashboard.umkm');
     }
 
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
     return view('dashboard');
 })->middleware('auth');
 
@@ -164,8 +171,29 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/',                                [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users',                           [AdminController::class, 'users'])->name('users');
+    Route::get('/users/export',                    [AdminController::class, 'exportUsers'])->name('users.export');
+    Route::get('/users/{user}',                    [AdminController::class, 'showUser'])->name('users.show');
+    Route::patch('/users/{user}/toggle',           [AdminController::class, 'toggleUserStatus'])->name('users.toggle');
+    Route::get('/layanans',                        [AdminController::class, 'layanans'])->name('layanans');
+    Route::get('/layanans/export',                 [AdminController::class, 'exportLayanans'])->name('layanans.export');
+    Route::get('/layanans/{layanan}',              [AdminController::class, 'showLayanan'])->name('layanans.show');
+    Route::delete('/layanans/{layanan}',           [AdminController::class, 'deleteLayanan'])->name('layanans.delete');
+    Route::get('/pesanans',                        [AdminController::class, 'pesanans'])->name('pesanans');
+    Route::delete('/ratings/{rating}',             [AdminController::class, 'deleteRating'])->name('ratings.delete');
+    Route::get('/laporan',                         [AdminController::class, 'laporan'])->name('laporan');
+    Route::get('/laporan/export',                  [AdminController::class, 'exportLaporan'])->name('laporan.export');
+});
+
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard-umkm', 'dashboard-umkm')->name('dashboard.umkm');
+    Route::get('/dashboard-umkm', [DashboardController::class, 'umkm'])->name('dashboard.umkm');
     Route::get('/profile-umkm', [UmkmProfileController::class, 'index'])->name('profile.umkm');
     Route::post('/profile-umkm', [UmkmProfileController::class, 'update'])->name('profile.umkm.update');
     Route::get('/cari-mahasiswa', [CariMahasiswaController::class, 'index'])->name('cari.mahasiswa');
@@ -173,5 +201,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/pesan/{layanan}', [PesananController::class, 'store'])->name('pesanan.store');
     Route::get('/favorit-umkm', [FavoritController::class, 'index'])->name('favorit.umkm');
     Route::post('/favorit/{mahasiswa}', [FavoritController::class, 'toggle'])->name('favorit.toggle');
+    Route::post('/pesanan/{pesanan}/rating', [RatingController::class, 'store'])->name('rating.store');
 });
  

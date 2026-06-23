@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Mahasiswa - SkillNest</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <style>
         .skill-badge:hover .skill-remove { opacity: 1; }
         .skill-remove { opacity: 0; transition: opacity .15s; }
         #skills-dropdown::-webkit-scrollbar { width: 4px; }
         #skills-dropdown::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* Circular crop mask */
+        #crop-modal .cropper-view-box,
+        #crop-modal .cropper-face { border-radius: 50%; }
+        #crop-modal .cropper-view-box { outline-color: #1846A3; }
     </style>
 </head>
 
@@ -50,21 +56,28 @@
         {{-- PROFILE CARD --}}
         <div class="mt-8 rounded-[2rem] bg-white p-8 shadow-sm">
 
-            <form action="{{ route('profile.mahasiswa.update') }}" method="POST">
+            <form action="{{ route('profile.mahasiswa.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="flex flex-col gap-8 lg:flex-row">
 
                     {{-- PHOTO --}}
                     <div class="flex flex-col items-center shrink-0">
+                        <input type="file" id="photo-input" name="photo" accept="image/*" class="hidden">
                         <img
-                            src="https://i.pravatar.cc/300?u={{ auth()->user()->email }}"
+                            id="photo-preview"
+                            src="{{ auth()->user()->photo ? asset('storage/' . auth()->user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&background=EAF2FF&color=1846A3&size=160' }}"
                             alt="profile"
-                            class="h-40 w-40 rounded-full object-cover"
+                            class="h-40 w-40 rounded-full object-cover cursor-pointer ring-4 ring-[#DCE7FB] hover:ring-[#1846A3] transition"
+                            onclick="document.getElementById('photo-input').click()"
                         >
-                        <button type="button" class="mt-4 rounded-xl bg-[#1846A3] px-5 py-2 text-sm font-semibold text-white">
+                        <button type="button"
+                            onclick="document.getElementById('photo-input').click()"
+                            class="mt-4 rounded-xl bg-[#1846A3] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1440A3] transition">
                             Upload Foto
                         </button>
+                        <p class="mt-2 text-xs text-slate-400">JPG, PNG, WebP · maks 2MB</p>
+                        @error('photo')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
 
                     {{-- FORM --}}
@@ -204,6 +217,59 @@
 
 </div>
 
+{{-- MODAL CROP FOTO --}}
+<div id="crop-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+
+        {{-- Header --}}
+        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-[#0F172A]">Atur Foto Profil</h3>
+                <p class="text-sm text-slate-400 mt-0.5">Geser & zoom foto sesuai keinginan kamu</p>
+            </div>
+            <button type="button" id="crop-cancel-x"
+                onclick="closeCropModal()"
+                class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition text-xl leading-none">
+                ×
+            </button>
+        </div>
+
+        {{-- Crop area --}}
+        <div class="px-6 pt-6">
+            <div class="relative w-full overflow-hidden rounded-2xl bg-slate-900" style="height: 300px;">
+                <img id="crop-image" src="" alt="" style="max-width:100%; display:block;">
+            </div>
+        </div>
+
+        {{-- Zoom controls --}}
+        <div class="px-6 py-4 flex items-center gap-3">
+            <button type="button" id="zoom-out"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 transition text-lg font-bold leading-none">
+                −
+            </button>
+            <input type="range" id="zoom-slider" min="0" max="100" value="0"
+                class="flex-1 h-1.5 rounded-full accent-[#1846A3] cursor-pointer">
+            <button type="button" id="zoom-in"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 transition text-lg font-bold leading-none">
+                +
+            </button>
+        </div>
+
+        {{-- Actions --}}
+        <div class="px-6 pb-6 flex gap-3">
+            <button type="button" id="crop-cancel"
+                class="flex-1 rounded-2xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                Batal
+            </button>
+            <button type="button" id="crop-confirm"
+                class="flex-1 rounded-2xl bg-[#1846A3] py-3 text-sm font-semibold text-white hover:bg-[#1440A3] transition">
+                Konfirmasi
+            </button>
+        </div>
+
+    </div>
+</div>
+
 <script>
 const PREDEFINED = [
     'Backend Developer','Frontend Developer','Full Stack Developer','Mobile Developer',
@@ -332,7 +398,102 @@ document.addEventListener('click', (e) => {
 
 // Init
 renderBadges();
+
+// Photo crop
+let cropper = null;
+let initialScale = null;
+
+document.getElementById('photo-input').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const cropImg = document.getElementById('crop-image');
+        cropImg.src = e.target.result;
+        openCropModal();
+    };
+    reader.readAsDataURL(file);
+});
+
+function openCropModal() {
+    const modal = document.getElementById('crop-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    const cropImg = document.getElementById('crop-image');
+    if (cropper) { cropper.destroy(); cropper = null; }
+    initialScale = null;
+    document.getElementById('zoom-slider').value = 0;
+
+    cropper = new Cropper(cropImg, {
+        aspectRatio: 1,
+        viewMode: 1,
+        dragMode: 'move',
+        autoCropArea: 0.85,
+        cropBoxResizable: false,
+        cropBoxMovable: false,
+        toggleDragModeOnDblclick: false,
+        background: false,
+        guides: false,
+        center: false,
+        ready: function () {
+            const d = cropper.getCanvasData();
+            initialScale = d.width / d.naturalWidth;
+        },
+    });
+}
+
+function closeCropModal() {
+    document.getElementById('crop-modal').classList.add('hidden');
+    document.getElementById('crop-modal').classList.remove('flex');
+    if (cropper) { cropper.destroy(); cropper = null; }
+    initialScale = null;
+    document.getElementById('photo-input').value = '';
+}
+
+function syncSlider() {
+    if (!cropper || initialScale === null) return;
+    const d = cropper.getCanvasData();
+    const current = d.width / d.naturalWidth;
+    const val = Math.round(((current / initialScale) - 1) / 2 * 100);
+    document.getElementById('zoom-slider').value = Math.max(0, Math.min(100, val));
+}
+
+document.getElementById('zoom-in').addEventListener('click', () => { if (cropper) { cropper.zoom(0.1); syncSlider(); } });
+document.getElementById('zoom-out').addEventListener('click', () => { if (cropper) { cropper.zoom(-0.1); syncSlider(); } });
+document.getElementById('zoom-slider').addEventListener('input', function () {
+    if (!cropper || initialScale === null) return;
+    // slider 0→100 maps to 1x→3x of initialScale
+    cropper.zoomTo(initialScale * (1 + 2 * this.value / 100));
+});
+document.getElementById('crop-cancel').addEventListener('click', closeCropModal);
+document.getElementById('crop-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeCropModal();
+});
+
+document.getElementById('crop-confirm').addEventListener('click', function () {
+    if (!cropper) return;
+    const btn = this;
+    btn.textContent = 'Memproses...';
+    btn.disabled = true;
+
+    cropper.getCroppedCanvas({ width: 400, height: 400 }).toBlob(function (blob) {
+        const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('photo-input').files = dt.files;
+        document.getElementById('photo-preview').src = URL.createObjectURL(blob);
+
+        document.getElementById('crop-modal').classList.add('hidden');
+        document.getElementById('crop-modal').classList.remove('flex');
+        if (cropper) { cropper.destroy(); cropper = null; }
+        btn.textContent = 'Konfirmasi';
+        btn.disabled = false;
+    }, 'image/jpeg', 0.92);
+});
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
 </body>
 </html>

@@ -28,6 +28,21 @@ class LoginController extends Controller
             // regenerate session
             $request->session()->regenerate();
 
+            // Cek apakah akun disuspend
+            if (!auth()->user()->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return back()->withErrors([
+                    'email' => 'Akun kamu telah disuspend. Hubungi admin untuk informasi lebih lanjut.',
+                ])->onlyInput('email');
+            }
+
+            // Redirect admin ke dashboard admin
+            if (auth()->user()->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
             return redirect()->route('home');
         }
 

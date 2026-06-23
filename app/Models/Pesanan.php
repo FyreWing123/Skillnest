@@ -34,6 +34,11 @@ class Pesanan extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function rating()
+    {
+        return $this->hasOne(Rating::class);
+    }
+
     public function statusLabel(): string
     {
         return self::STATUS_LABELS[$this->status] ?? $this->status;

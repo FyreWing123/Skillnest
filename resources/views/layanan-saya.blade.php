@@ -71,10 +71,26 @@
                     @foreach($layanans as $layanan)
                     <div class="rounded-4xl border border-[#DCE7FB] bg-white p-8 shadow-sm">
 
+                        @php
+                            $layananPesananIds = $layanan->pesanans()->pluck('id');
+                            $layananAvgRating  = \App\Models\Rating::whereIn('pesanan_id', $layananPesananIds)->avg('stars');
+                            $layananRatingCount = \App\Models\Rating::whereIn('pesanan_id', $layananPesananIds)->count();
+                        @endphp
                         <div class="flex items-start justify-between">
                             <div>
                                 <h2 class="text-2xl font-bold text-[#0F172A]">{{ $layanan->nama }}</h2>
                                 <p class="mt-2 font-semibold text-[#2563EB]">{{ $layanan->kategori }}</p>
+                                @if($layananAvgRating)
+                                    <div class="mt-2 flex items-center gap-1.5">
+                                        <span class="text-yellow-400 text-base leading-none">
+                                            @for($i = 1; $i <= 5; $i++){{ $i <= round($layananAvgRating) ? '★' : '☆' }}@endfor
+                                        </span>
+                                        <span class="text-sm font-bold text-slate-700">{{ number_format($layananAvgRating, 1) }}</span>
+                                        <span class="text-xs text-slate-400">({{ $layananRatingCount }} ulasan)</span>
+                                    </div>
+                                @else
+                                    <p class="mt-2 text-xs text-slate-400">Belum ada rating</p>
+                                @endif
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="rounded-xl px-4 py-2 text-sm font-bold

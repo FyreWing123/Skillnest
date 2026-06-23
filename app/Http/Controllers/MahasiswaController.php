@@ -14,7 +14,10 @@ class MahasiswaController extends Controller
 
         $layanans   = $user->layanans()->where('status', 'aktif')->orderBy('harga')->get();
         $portfolios = $user->portfolios()->latest()->take(6)->get();
+        $avgRating  = $user->avgRating();
+        $ratingCount = $user->ratingCount();
+        $ratings    = $user->ratingsReceived()->with('umkm')->latest()->take(10)->get();
 
-        return view('profil-mahasiswa', compact('user', 'layanans', 'portfolios'));
+        return view('profil-mahasiswa', compact('user', 'layanans', 'portfolios', 'avgRating', 'ratingCount', 'ratings'));
     }
 }

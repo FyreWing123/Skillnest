@@ -101,14 +101,21 @@
                             $initials   = strtoupper(substr($firstName, 0, 2));
                             $jobLabel   = $m->jurusan ?? ($skills[0] ?? 'Mahasiswa');
                             $minLayanan = $m->layanans->first();
+                            $avg        = $m->avgRating();
+                            $rCount     = $m->ratingCount();
                         @endphp
                         <div class="group rounded-[2rem] border border-[#DCE7FB] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl flex flex-col">
 
                             {{-- Avatar + Name --}}
                             <div class="flex items-center gap-4">
-                                <div class="h-16 w-16 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-xl shrink-0">
-                                    {{ $initials }}
-                                </div>
+                                @if($m->photo)
+                                    <img src="{{ asset('storage/' . $m->photo) }}" alt="{{ $firstName }}"
+                                         class="h-16 w-16 rounded-full object-cover shrink-0">
+                                @else
+                                    <div class="h-16 w-16 rounded-full bg-[#EAF2FF] flex items-center justify-center text-[#1846A3] font-bold text-xl shrink-0">
+                                        {{ $initials }}
+                                    </div>
+                                @endif
                                 <div class="min-w-0">
                                     <h3 class="text-2xl font-bold text-[#0F172A] truncate">{{ $firstName }}</h3>
                                     <p class="text-sm font-semibold text-[#2563EB] truncate">{{ $jobLabel }}</p>
@@ -119,6 +126,17 @@
                             <p class="mt-6 text-sm leading-7 text-[#64748B] line-clamp-3 flex-1">
                                 {{ $m->bio ?: 'Mahasiswa berpengalaman membantu UMKM dan bisnis berkembang melalui layanan profesional.' }}
                             </p>
+
+                            {{-- Rating --}}
+                            @if($avg)
+                                <div class="mt-4 flex items-center gap-1.5">
+                                    <span class="text-yellow-400 text-sm leading-none">
+                                        @for($i = 1; $i <= 5; $i++){{ $i <= round($avg) ? '★' : '☆' }}@endfor
+                                    </span>
+                                    <span class="text-sm font-bold text-slate-700">{{ number_format($avg, 1) }}</span>
+                                    <span class="text-xs text-slate-400">({{ $rCount }})</span>
+                                </div>
+                            @endif
 
                             {{-- Price --}}
                             <div class="mt-6 flex items-end justify-between">
