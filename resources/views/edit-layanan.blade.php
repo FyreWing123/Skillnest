@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Layanan - SkillNest</title>
+    <title>Edit Layanan - SkillNest</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -40,12 +40,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </a>
-                <h1 class="text-4xl font-bold text-[#0F172A]">Tambah Layanan</h1>
+                <h1 class="text-4xl font-bold text-[#0F172A]">Edit Layanan</h1>
             </div>
 
-            <p class="text-slate-500 -mt-4 mb-8">Buat layanan baru yang akan tampil di marketplace SkillNest.</p>
+            <p class="text-slate-500 -mt-4 mb-8">Perbarui informasi layanan kamu.</p>
 
-            <div class="rounded-[2rem] border border-[#DCE7FB] bg-white p-8 shadow-sm">
+            <div class="rounded-4xl border border-[#DCE7FB] bg-white p-8 shadow-sm">
 
                 @if($errors->any())
                     <div class="mb-6 rounded-xl bg-red-50 border border-red-200 p-4">
@@ -57,15 +57,16 @@
                     </div>
                 @endif
 
-                <form action="{{ route('layanan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form action="{{ route('layanan.update', $layanan->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
+                @method('PUT')
 
                     <div>
                         <label class="mb-2 block text-sm font-semibold">Nama Layanan</label>
                         <input
                             type="text"
                             name="nama"
-                            value="{{ old('nama') }}"
+                            value="{{ old('nama', $layanan->nama) }}"
                             placeholder="Landing Page UMKM"
                             class="w-full rounded-xl border px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300 {{ $errors->has('nama') ? 'border-red-400' : 'border-[#DCE7FB]' }}"
                         >
@@ -74,11 +75,11 @@
                     <div>
                         <label class="mb-2 block text-sm font-semibold">Kategori</label>
                         <select name="kategori" class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            <option>Web Development</option>
-                            <option>Desain Grafis</option>
-                            <option>Digital Marketing</option>
-                            <option>Fotografi Produk</option>
-                            <option>Content Creation</option>
+                            @foreach(['Web Development','Desain Grafis','Digital Marketing','Fotografi Produk','Content Creation'] as $kat)
+                                <option value="{{ $kat }}" {{ old('kategori', $layanan->kategori) === $kat ? 'selected' : '' }}>
+                                    {{ $kat }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -89,6 +90,7 @@
                                 id="input-harga"
                                 type="text"
                                 name="harga"
+                                value="{{ old('harga', $layanan->harga) }}"
                                 placeholder="500000"
                                 inputmode="numeric"
                                 class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -96,7 +98,7 @@
                             >
                             <p class="mt-2 text-sm text-slate-400">
                                 Akan ditampilkan sebagai:
-                                <span id="preview-harga" class="font-bold text-[#1846A3]">—</span>
+                                <span id="preview-harga" class="font-bold text-[#1846A3]">{{ $layanan->formatHarga() }}</span>
                             </p>
                         </div>
                         <div>
@@ -104,6 +106,7 @@
                             <input
                                 type="text"
                                 name="estimasi"
+                                value="{{ old('estimasi', $layanan->estimasi) }}"
                                 placeholder="3 Hari"
                                 class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300"
                             >
@@ -111,10 +114,23 @@
                     </div>
 
                     <div>
-                        <label class="mb-2 block text-sm font-semibold">Thumbnail</label>
+                        <label class="mb-2 block text-sm font-semibold">Thumbnail
+                            <span class="font-normal text-slate-400">(kosongkan jika tidak ingin mengubah)</span>
+                        </label>
+
+                        @if($layanan->thumbnail)
+                            <div class="mb-3 flex items-center gap-3 rounded-xl bg-slate-50 border border-[#E2E8F0] p-3">
+                                <img src="{{ asset('storage/' . $layanan->thumbnail) }}"
+                                     alt="Thumbnail saat ini"
+                                     class="h-16 w-24 object-cover rounded-lg">
+                                <span class="text-xs text-slate-500">Thumbnail saat ini. Unggah baru untuk mengganti.</span>
+                            </div>
+                        @endif
+
                         <input
                             type="file"
                             name="thumbnail"
+                            accept="image/*"
                             class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-[#EAF2FF] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#1846A3]"
                         >
                     </div>
@@ -129,12 +145,11 @@
                             name="deskripsi_singkat"
                             rows="2"
                             maxlength="150"
-                            placeholder="Contoh: Landing page profesional untuk UMKM, bisnis lokal, company profile, dan promosi digital."
                             class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
                             oninput="updateCharCount(this)"
-                        ></textarea>
+                        >{{ old('deskripsi_singkat', $layanan->deskripsi_singkat) }}</textarea>
                         <p class="mt-1 text-right text-xs text-slate-400">
-                            <span id="char-count">0</span>/150 karakter
+                            <span id="char-count">{{ strlen(old('deskripsi_singkat', $layanan->deskripsi_singkat)) }}</span>/150 karakter
                         </p>
                     </div>
 
@@ -146,15 +161,15 @@
                         <textarea
                             name="deskripsi_detail"
                             rows="6"
-                            placeholder="Jelaskan layananmu secara lengkap: fitur yang disediakan, teknologi yang digunakan, proses pengerjaan, dan lain-lain..."
+                            placeholder="Jelaskan layananmu secara lengkap..."
                             class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
-                        ></textarea>
+                        >{{ old('deskripsi_detail', $layanan->deskripsi_detail) }}</textarea>
                     </div>
 
                     <div class="flex gap-3">
                         <button type="submit"
-                            class="rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#1149C7] px-8 py-3 text-sm font-semibold text-white hover:opacity-90 transition">
-                            Simpan Layanan
+                            class="rounded-2xl bg-linear-to-r from-[#2563EB] to-[#1149C7] px-8 py-3 text-sm font-semibold text-white hover:opacity-90 transition">
+                            Simpan Perubahan
                         </button>
                         <a href="{{ route('layanan.saya') }}"
                             class="rounded-2xl border border-slate-300 bg-white px-8 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
@@ -174,7 +189,7 @@
 
 <script>
 function formatHarga(raw) {
-    const num = parseInt(raw.replace(/\D/g, '')) || 0;
+    const num = parseInt(String(raw).replace(/\D/g, '')) || 0;
     if (num === 0) return '—';
     if (num >= 1000000) {
         const jt = num / 1000000;

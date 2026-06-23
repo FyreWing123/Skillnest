@@ -12,10 +12,10 @@
 
     {{-- SIDEBAR --}}
     <aside class="w-72 bg-white border-r border-[#E2E8F0] p-6">
-        <div class="flex items-center gap-3 mb-10">
+        <a href="{{ route('home') }}" class="flex items-center gap-3 mb-10">
             <img src="{{ asset('images/skillnestlogo.png') }}" class="h-10" alt="SkillNest">
             <span class="text-xl font-bold text-[#0F172A]">SkillNest</span>
-        </div>
+        </a>
 
         <nav class="space-y-2">
             <a href="{{ route('dashboard.umkm') }}"
@@ -41,10 +41,6 @@
             <a href="{{ route('chat') }}"
                 class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100">
                 Pesan
-            </a>
-            <a href="#"
-                class="block rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-100">
-                Settings
             </a>
         </nav>
     </aside>

@@ -6,6 +6,16 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\LayananController;
+use App\Http\Controllers\PesananController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UmkmProfileController;
+use App\Http\Controllers\CariMahasiswaController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\FavoritController;
+use App\Http\Controllers\ServicesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +62,7 @@ Route::view('/about-us', 'aboutus')->name('aboutus');
 |--------------------------------------------------------------------------
 */
 
-Route::view('/services', 'services')->name('services');
+Route::get('/services', [ServicesController::class, 'index'])->name('services');
 
 /*
 |--------------------------------------------------------------------------
@@ -121,13 +131,31 @@ Route::get('/dashboard', function () {
 */
 
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard-mahasiswa', 'dashboard-mahasiswa')->name('dashboard.mahasiswa');
+    Route::get('/dashboard-mahasiswa', [DashboardController::class, 'mahasiswa'])->name('dashboard.mahasiswa');
     Route::get('/profile-mahasiswa', [ProfileController::class, 'index'])->name('profile.mahasiswa');
     Route::post('/profile-mahasiswa', [ProfileController::class, 'update'])->name('profile.mahasiswa.update');
-    Route::view('/portfolio-mahasiswa', 'portfolio-mahasiswa')->name('portfolio.mahasiswa');
-    Route::view('/layanan-saya', 'layanan-saya')->name('layanan.saya');
-    Route::view('/tambah-layanan', 'tambah-layanan')->name('layanan.create');
-    Route::view('/chat', 'chat')->name('chat');
+    Route::get('/portfolio-mahasiswa', [PortfolioController::class, 'index'])->name('portfolio.mahasiswa');
+    Route::get('/portfolio/{portfolio}', [PortfolioController::class, 'show'])->name('portfolio.show');
+    Route::get('/portfolio-mahasiswa/tambah', [PortfolioController::class, 'create'])->name('portfolio.create');
+    Route::post('/portfolio-mahasiswa', [PortfolioController::class, 'store'])->name('portfolio.store');
+    Route::get('/portfolio-mahasiswa/{portfolio}/edit', [PortfolioController::class, 'edit'])->name('portfolio.edit');
+    Route::put('/portfolio-mahasiswa/{portfolio}', [PortfolioController::class, 'update'])->name('portfolio.update');
+    Route::delete('/portfolio-mahasiswa/{portfolio}', [PortfolioController::class, 'destroy'])->name('portfolio.destroy');
+    Route::get('/layanan-saya', [LayananController::class, 'index'])->name('layanan.saya');
+    Route::get('/layanan-saya/tambah', [LayananController::class, 'create'])->name('layanan.create');
+    Route::post('/layanan-saya', [LayananController::class, 'store'])->name('layanan.store');
+    Route::get('/layanan-saya/{layanan}/edit', [LayananController::class, 'edit'])->name('layanan.edit');
+    Route::put('/layanan-saya/{layanan}', [LayananController::class, 'update'])->name('layanan.update');
+    Route::delete('/layanan-saya/{layanan}', [LayananController::class, 'destroy'])->name('layanan.destroy');
+    Route::get('/layanan-saya/{layanan}/pesanan', [LayananController::class, 'showPesanan'])->name('layanan.pesanan');
+    Route::patch('/layanan-saya/{layanan}/ketersediaan', [LayananController::class, 'toggleKetersediaan'])->name('layanan.toggle-ketersediaan');
+    Route::patch('/pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])->name('pesanan.update-status');
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+    Route::get('/chat/start/{user}', [ChatController::class, 'start'])->name('chat.start');
+    Route::get('/chat/conversations/{conversation}/messages', [ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('/chat/conversations/{conversation}/messages', [ChatController::class, 'send'])->name('chat.send');
+    Route::get('/pesanan-saya', [PesananController::class, 'mahasiswaPesanan'])->name('pesanan.saya');
+    Route::get('/mahasiswa/{user}', [MahasiswaController::class, 'show'])->name('mahasiswa.profil');
 });
 
 /*
@@ -138,9 +166,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard-umkm', 'dashboard-umkm')->name('dashboard.umkm');
-    Route::view('/profile-umkm', 'profile-umkm')->name('profile.umkm');
-    Route::view('/cari-mahasiswa', 'cari-mahasiswa')->name('cari.mahasiswa');
-    Route::view('/pesanan-umkm', 'pesanan-umkm')->name('pesanan.umkm');
-    Route::view('/favorit-umkm', 'favorit-umkm')->name('favorit.umkm');
+    Route::get('/profile-umkm', [UmkmProfileController::class, 'index'])->name('profile.umkm');
+    Route::post('/profile-umkm', [UmkmProfileController::class, 'update'])->name('profile.umkm.update');
+    Route::get('/cari-mahasiswa', [CariMahasiswaController::class, 'index'])->name('cari.mahasiswa');
+    Route::get('/pesanan-umkm', [PesananController::class, 'umkmPesanan'])->name('pesanan.umkm');
+    Route::post('/pesan/{layanan}', [PesananController::class, 'store'])->name('pesanan.store');
+    Route::get('/favorit-umkm', [FavoritController::class, 'index'])->name('favorit.umkm');
+    Route::post('/favorit/{mahasiswa}', [FavoritController::class, 'toggle'])->name('favorit.toggle');
 });
  
