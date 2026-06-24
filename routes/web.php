@@ -18,6 +18,8 @@ use App\Http\Controllers\FavoritController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +78,28 @@ Route::get('/layanan/{layanan}/detail', [LayananController::class, 'publicDetail
     ->name('layanan.detail')
     ->middleware('auth');
 
+
+/*
+|--------------------------------------------------------------------------
+| LUPA PASSWORD
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/lupa-password', [ForgotPasswordController::class, 'showForm'])
+    ->name('password.request')
+    ->middleware('guest');
+
+Route::post('/lupa-password', [ForgotPasswordController::class, 'sendLink'])
+    ->name('password.email')
+    ->middleware('guest');
+
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset')
+    ->middleware('guest');
+
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
+    ->name('password.update')
+    ->middleware('guest');
 
 /*
 |--------------------------------------------------------------------------

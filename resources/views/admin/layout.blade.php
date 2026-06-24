@@ -43,7 +43,7 @@
             <a href="{{ route('admin.laporan') }}"
                class="block rounded-xl px-4 py-3 font-semibold transition
                       {{ request()->routeIs('admin.laporan') ? 'bg-[#EAF2FF] text-[#1846A3]' : 'text-slate-600 hover:bg-slate-100' }}">
-                Laporan
+                Statistics
             </a>
         </nav>
 
@@ -67,10 +67,6 @@
         {{-- TOP BAR --}}
         <div class="bg-white border-b border-[#E2E8F0] px-8 py-4 flex items-center justify-between sticky top-0 z-10">
             <h1 class="text-lg font-bold text-[#0F172A]">@yield('heading', 'Admin Panel')</h1>
-            <div class="flex items-center gap-3">
-                <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">ADMIN</span>
-                <span class="text-sm text-slate-500">{{ now()->format('d M Y') }}</span>
-            </div>
         </div>
 
         <div class="p-8">

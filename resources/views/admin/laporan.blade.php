@@ -1,6 +1,6 @@
 @extends('admin.layout')
 @section('title', 'Laporan')
-@section('heading', 'Laporan & Statistik')
+@section('heading', 'Statistics Overview')
 
 @section('content')
 
