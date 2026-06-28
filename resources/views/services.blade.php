@@ -122,10 +122,16 @@
                                 </div>
                             </div>
 
-                            {{-- Bio --}}
-                            <p class="mt-6 text-sm leading-7 text-[#64748B] line-clamp-3 flex-1">
-                                {{ $m->bio ?: 'Mahasiswa berpengalaman membantu UMKM dan bisnis berkembang melalui layanan profesional.' }}
-                            </p>
+                            {{-- Service Type Tags --}}
+                            <div class="mt-6 flex flex-wrap gap-2 flex-1 content-start">
+                                @forelse($m->layanans->pluck('kategori')->unique() as $kat)
+                                    <span class="inline-flex items-center rounded-full bg-[#EAF2FF] px-3 py-1 text-xs font-semibold text-[#1846A3]">
+                                        {{ $kat }}
+                                    </span>
+                                @empty
+                                    <span class="text-sm text-slate-400">Belum ada layanan</span>
+                                @endforelse
+                            </div>
 
                             {{-- Rating --}}
                             @if($avg)
