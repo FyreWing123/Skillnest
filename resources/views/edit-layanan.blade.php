@@ -75,10 +75,8 @@
                     <div>
                         <label class="mb-2 block text-sm font-semibold">Kategori</label>
                         <select name="kategori" class="w-full rounded-xl border border-[#DCE7FB] px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                            @foreach(['Web Development','Desain Grafis','Digital Marketing','Fotografi Produk','Content Creation'] as $kat)
-                                <option value="{{ $kat }}" {{ old('kategori', $layanan->kategori) === $kat ? 'selected' : '' }}>
-                                    {{ $kat }}
-                                </option>
+                            @foreach(['Web Development','UI/UX Design','Desain Grafis','Fotografi','Videografi','Copywriting','Social Media','Mobile App','Digital Marketing','Content Creation','Admin Support'] as $kat)
+                                <option value="{{ $kat }}" {{ old('kategori', $layanan->kategori) === $kat ? 'selected' : '' }}>{{ $kat }}</option>
                             @endforeach
                         </select>
                     </div>
